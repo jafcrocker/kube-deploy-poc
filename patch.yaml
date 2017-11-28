@@ -1,0 +1,19 @@
+# This generic yaml file is used to patch a ReplicaSet adding labels
+# which are required by the deployment scripts.
+metadata:
+  name: ${DEPLOYMENT}
+  labels:
+    # "microservice" label used to find existing deployments
+    microservice: ${MICROSERVICE}
+spec:
+  selector:
+    matchLabels:
+      # Select pods managed by this RS
+      deployment: ${DEPLOYMENT}
+  template:
+    metadata:
+      labels:
+        # label used to associate pod(s) with RS
+        deployment: ${DEPLOYMENT}
+        # label used by service to enable routing
+        service_${SERVICE_NAME}: 'false'

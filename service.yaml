@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    # selector must be of the form "service_NAME: 'true'", 
+    #   where NAME is the name of this service.
+    service_service: 'true'
+  type: NodePort
+

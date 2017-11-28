@@ -1,0 +1,17 @@
+# Example microservice definition.
+# This definition should consist of a ReplicaSet.
+
+kind: ReplicaSet
+apiVersion: extensions/v1beta1
+metadata: 
+  # Note: Name will have a per-deployment guid appended
+  name: server
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: the-server
+        image: gcr.io/${PROJECT_NAME}/service:1.0
+
+

@@ -1,0 +1,18 @@
+# Defines a test to run.  
+# The test is deemed to succeed or fail as the exit status
+# of the pod is "Succeeded" or "Failed". 
+kind: Pod
+apiVersion: v1
+metadata:
+  name: test-${DEPLOYMENT}
+spec:
+  restartPolicy: Never
+  containers:
+  - name: endtoend
+    image: gcr.io/${PROJECT_NAME}/test:1.0
+    env:
+      # This particular test takes a parameter "SERVICE_NAME" which defines the 
+      # name of the Kubernetes service on which REST request will be made.  The 
+      # service will be accessed via the environment variables provided by K8s.
+    - name: SERVICE_NAME
+      value: SERVICE
