@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
 set -e
-
 RS_YAML=rs.yaml
 SERVICE=service
 PROJECT=$(gcloud config get-value project)
@@ -10,7 +9,8 @@ log () {
 }
 
 get_deployments_by_date() {
-    local MICROSERVICE=$1
+    local RS_YAML_FILE=$1
+    local MICROSERVICE=$(get_deployment_name_from_rs $RS_YAML_FILE)
     kubectl get rs --sort-by=.metadata.creationTimestamp -oname --selector=microservice=$MICROSERVICE \
         | tac | xargs -r basename -a
 }
@@ -76,8 +76,7 @@ do_test () {
     done
 }
 
-MICROSERVICE=$(get_deployment_name_from_rs $RS_YAML)
-LAST_DEPLOYMENT=$(get_deployments_by_date $MICROSERVICE | head -1)
+LAST_DEPLOYMENT=$(get_deployments_by_date $RS_YAML | head -1)
 
 DEPLOYMENT=$(basename $(deploy $RS_YAML $SERVICE $PROJECT))
 
@@ -87,7 +86,7 @@ enable_deployment $DEPLOYMENT $SERVICE true
 if do_test $DEPLOYMENT $PROJECT ; then
     [ "$LAST_DEPLOYMENT" = "" ] || kubectl delete rs $LAST_DEPLOYMENT
 else
-    [ "$LAST_DEPLOYMENT" = "" ] || enable_deployment $LAST_DEPLOYMENT true
+    [ "$LAST_DEPLOYMENT" = "" ] || enable_deployment $LAST_DEPLOYMENT $SERVICE true
     kubectl delete rs $DEPLOYMENT
 fi
 
