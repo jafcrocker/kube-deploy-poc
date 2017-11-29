@@ -44,7 +44,12 @@ kubectl apply -f service.yaml
 ./deploy.sh
 ```
 
-5) Modify the service such that the test fails
+5) Deploy a new instance of the service.  Note that the previous version is deleted.
+```
+./deploy.sh
+```
+
+6) Modify the service such that the test fails.  Note that it rolls back to the previous version on test failure.
 ```
 # Create a new service image
 sed -i 's/Version ..0/Version 2.0/' image/service/version.html 
