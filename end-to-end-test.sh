@@ -3,6 +3,7 @@ set -e
 RS_YAML=rs.yaml
 SERVICE=service
 PROJECT=$(gcloud config get-value project)
+STACK=staging
 
 source common.sh
 
@@ -23,12 +24,9 @@ do_test () {
     done
 }
 
-LAST_DEPLOYMENT=$(get_deployments_by_date $RS_YAML | head -1)
+LAST_DEPLOYMENT=$(get_deployments_by_date $RS_YAML $STACK | head -1)
 
-DEPLOYMENT=$(basename $(deploy $RS_YAML $SERVICE $PROJECT))
-
-echo $DEPLOYMENT
-exit
+DEPLOYMENT=$(basename $(deploy $RS_YAML $SERVICE $PROJECT $STACK))
 
 [ "$LAST_DEPLOYMENT" = "" ] || enable_deployment $LAST_DEPLOYMENT $SERVICE false
 enable_deployment $DEPLOYMENT $SERVICE true

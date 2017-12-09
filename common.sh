@@ -6,10 +6,11 @@ log () {
 
 get_deployments_by_date() {
     local RS_YAML_FILE=$1
+    local STACK=$2
     local MICROSERVICE=$(get_deployment_name_from_rs $RS_YAML_FILE)
-    kubectl get rs --sort-by=.metadata.creationTimestamp -oname --selector=microservice=$MICROSERVICE \
-        | tail -r | xargs -r basename -a
-    exit 1
+    kubectl get rs --sort-by=.metadata.creationTimestamp -oname \
+          --selector=microservice=$MICROSERVICE,stack=$STACK \
+        | tac | xargs -r basename -a
 }
 
 enable_deployment() {
@@ -32,14 +33,15 @@ deploy () {
     local RS_YAML_FILE=$1
     local SERVICE_NAME=$2
     local PROJECT_NAME=$3
+    local STACK=$4
 
     local GUID=$(printf "%04x\n" $RANDOM)
     local MICROSERVICE=$(get_deployment_name_from_rs $RS_YAML_FILE)
     local DEPLOYMENT=${MICROSERVICE}-${GUID}
 
-    log create-deployment $DEPLOYMENT
+    log create-deployment $MICROSERVICE $STACK $GUID
 
-    local ENV="SERVICE_NAME PROJECT_NAME MICROSERVICE DEPLOYMENT"
+    local ENV="SERVICE_NAME PROJECT_NAME MICROSERVICE GUID STACK"
     local RS=$(export $ENV;
         kubectl patch --local=true -oyaml \
             -f <(envsubst < $RS_YAML_FILE) \
