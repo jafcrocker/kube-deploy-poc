@@ -1,0 +1,28 @@
+# Example microservice definition.
+# This definition should consist of a ReplicaSet.
+
+kind: ReplicaSet
+apiVersion: extensions/v1beta1
+metadata: 
+  # Note: Name will have a per-deployment guid appended
+  name: datastore
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: the-server
+        image: gcr.io/${PROJECT_NAME}/datastore:1.0
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /run/credentials/service-account.json
+        volumeMounts:
+        - name: datastore-creds
+          mountPath: /run/credentials
+          readOnly: true
+      volumes:
+      - name: datastore-creds
+        secret:
+          secretName: datastore
+
+
