@@ -35,7 +35,7 @@ deploy () {
     local PROJECT_NAME=$3
     local STACK=$4
 
-    local GUID=$(printf "%04x\n" $RANDOM)
+    local GUID=$(head -c 3 /dev/urandom | base32 | tr '[A-Z=]' '[a-z\0]')
     local MICROSERVICE=$(get_deployment_name_from_rs $RS_YAML_FILE)
     local DEPLOYMENT=${MICROSERVICE}-${GUID}
 
@@ -46,7 +46,7 @@ deploy () {
         kubectl patch --local=true -oyaml \
             -f <(envsubst < $RS_YAML_FILE) \
             -p "$(envsubst < patch.yaml)" | \
-        kubectl apply -f- -o name)
+        kubectl create -f- -o name)
 
     # Wait for pods to be ready
     log wait-for-deployment
