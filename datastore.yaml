@@ -19,6 +19,10 @@ spec:
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /run/credentials/service-account.json
+        resources:
+          requests:
+            cpu: 5m
+            memory: 50M
         volumeMounts:
         - name: datastore-creds
           mountPath: /run/credentials
