@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 set -e
-RS_YAML=rs.yaml
-SERVICE=service
+RS_YAML=$1
 PROJECT=$(gcloud config get-value project)
 STACK=staging
 
@@ -25,6 +24,7 @@ do_test () {
 }
 
 MICROSERVICE=$(get_deployment_name_from_rs $RS_YAML)
+SERVICE=$(get_service_name_from_rs $RS_YAML)
 LAST_DEPLOYMENT=$(get_deployments_by_date $MICROSERVICE $STACK name | xargs -r basename -a | tail -1)
 
 DEPLOYMENT=$(basename $(deploy $RS_YAML $SERVICE $PROJECT $STACK))

@@ -36,6 +36,11 @@ get_deployment_name_from_rs() {
     python -c 'import yaml,sys; print yaml.load(sys.stdin)["metadata"]["name"]' < $YAML_FILE
 }
 
+get_service_name_from_rs() {
+    local YAML_FILE=$1
+    python -c 'import yaml,sys; print yaml.load(sys.stdin)["metadata"]["annotations"]["zenoss.org/service"]' < $YAML_FILE
+}
+
 deploy () {
     local RS_YAML_FILE=$1
     local SERVICE_NAME=$2

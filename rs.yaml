@@ -6,6 +6,10 @@ apiVersion: extensions/v1beta1
 metadata: 
   # Note: Name will have a per-deployment guid appended
   name: server
+  annotations:
+    # Name of service which exposes this RS
+    #   This is used for building the service's selector
+    zenoss.org/service: service
 spec:
   replicas: 1
   template:
