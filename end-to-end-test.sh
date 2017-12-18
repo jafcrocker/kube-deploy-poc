@@ -24,7 +24,8 @@ do_test () {
     done
 }
 
-LAST_DEPLOYMENT=$(get_deployments_by_date $RS_YAML $STACK | head -1)
+MICROSERVICE=$(get_deployment_name_from_rs $RS_YAML)
+LAST_DEPLOYMENT=$(get_deployments_by_date $MICROSERVICE $STACK name | xargs -r basename -a | tail -1)
 
 DEPLOYMENT=$(basename $(deploy $RS_YAML $SERVICE $PROJECT $STACK))
 

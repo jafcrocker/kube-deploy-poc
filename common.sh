@@ -5,12 +5,19 @@ log () {
 }
 
 get_deployments_by_date() {
-    local RS_YAML_FILE=$1
+    local MICROSERVICE=$1
     local STACK=$2
-    local MICROSERVICE=$(get_deployment_name_from_rs $RS_YAML_FILE)
-    kubectl get rs --sort-by=.metadata.creationTimestamp -oname \
-          --selector=microservice=$MICROSERVICE,stack=$STACK \
-        | tac | xargs -r basename -a
+	local FORMAT=$3
+	SELECTOR=microservice=$MICROSERVICE
+	if [ "$STACK" != "" ] ; then 
+		SELECTOR=$SELECTOR,stack=$STACK
+	fi
+	if [ "$FORMAT" != "" ] ; then 
+		OUTPUT=--output=$FORMAT
+	fi
+    kubectl get rs --sort-by=.metadata.creationTimestamp \
+		    $OUTPUT \
+		    --selector=$SELECTOR 
 }
 
 enable_deployment() {
