@@ -41,6 +41,9 @@ get_service_name_from_rs() {
     python -c 'import yaml,sys; print yaml.load(sys.stdin)["metadata"]["annotations"]["zenoss.org/service"]' < $YAML_FILE
 }
 
+
+
+
 deploy () {
     local RS_YAML_FILE=$1
     local SERVICE_NAME=$2
@@ -53,11 +56,33 @@ deploy () {
 
     log create-deployment $MICROSERVICE $STACK $GUID
 
+    # Define the patch which will add various labels to the replicaset
+    #  allowing it to be treated as a deploymwnt by the other scripts.
+    local PATCH=$(echo "
+        metadata:
+          name: &DEPLOYMENT ${MICROSERVICE}-${STACK}-${GUID}
+          labels:
+            # "microservice" label used to find existing deployments
+            microservice: ${MICROSERVICE}
+            stack: ${STACK}
+        spec:
+          selector:
+            matchLabels:
+              # Select pods managed by this RS
+              deployment: *DEPLOYMENT
+          template:
+            metadata:
+              labels:
+                # label used to associate pod(s) with RS
+                deployment: *DEPLOYMENT
+                # label used by service to enable routing
+                service_${SERVICE_NAME}: 'false'
+        " | awk '{print substr($0, 9)}')
     local ENV="SERVICE_NAME PROJECT_NAME MICROSERVICE GUID STACK"
     local RS=$(export $ENV;
         kubectl patch --local=true -oyaml \
             -f <(envsubst < $RS_YAML_FILE) \
-            -p "$(envsubst < patch.yaml)" | \
+            -p "$(echo "$PATCH" | envsubst)" | \
         kubectl create -f- -o name)
 
     # Wait for pods to be ready
